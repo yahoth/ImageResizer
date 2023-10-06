@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         let mainVC = ViewController()
-//        let mainVC = Temp2ViewController()
+//        let mainVC = ImageResizeViewController()
         let navigationController = UINavigationController(rootViewController: mainVC)
 
         window?.rootViewController = navigationController
