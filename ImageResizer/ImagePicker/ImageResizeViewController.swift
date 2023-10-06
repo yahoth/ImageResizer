@@ -1,5 +1,5 @@
 //
-//  TempViewController.swift
+//  ImageResizeViewController.swift
 //  ImageResizer
 //
 //  Created by TAEHYOUNG KIM on 10/5/23.
@@ -18,12 +18,15 @@
 ///
 /// 문제: 오토레이아웃인듯.
 import UIKit
+import Combine
 
-class Temp2ViewController: UIViewController {
+class ImageResizeViewController: UIViewController {
+
+    var vm: ImageResizeViewModel!
 
     let scrollView = UIScrollView()
     let imageView = UIImageView()
-    @Published var selectedImage: UIImage!
+    var subscriptions = Set<AnyCancellable>()
 
     let hStack: UIStackView = {
         let hStack = UIStackView()
@@ -42,35 +45,34 @@ class Temp2ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
 
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.minimumZoomScale = 1.0
-        scrollView.maximumZoomScale = 3.0
-//        scrollView.bouncesZoom = false
-//        scrollView.alwaysBounceVertical = false
-//        scrollView.alwaysBounceHorizontal = false
+        setScrollViewConstraints()
+        bind()
+        //        let maxDimension = max(imageView.bounds.width, imageView.bounds.height)
+        ////        scrollView.contentSize = CGSize(width: maxDimension, height: maxDimension)
+        //        scrollView.contentSize = imageView.bounds.size
 
-        scrollView.backgroundColor = .red
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.showsHorizontalScrollIndicator = false
-//        scrollView.isUserInteractionEnabled = true
-        let image = selectedImage
+        setHStackConstraints()
+    }
+
+    func bind() {
+        vm.$selectedImage.receive(on: DispatchQueue.main)
+            .sink { image in
+                guard let image else { return }
+                self.setImageViewConstraints(image: image)
+            }.store(in: &subscriptions)
+    }
+
+    func setImageViewConstraints(image: UIImage) {
+//        let image = selectedImage
         imageView.image = image
         imageView.center = scrollView.center
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
 
-        view.addSubview(scrollView)
         scrollView.addSubview(imageView)
 
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            scrollView.heightAnchor.constraint(equalToConstant: (view.bounds.size.width - 40) * 4 / 3),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
-        ])
-
-        let imageWidth = image?.size.width ?? 0
-        let imageHeight = image?.size.height ?? 0
+        let imageWidth = image.size.width
+        let imageHeight = image.size.height
         let aspectRatio = imageWidth / imageHeight
 
         NSLayoutConstraint.activate([
@@ -82,14 +84,30 @@ class Temp2ViewController: UIViewController {
             imageView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             imageView.heightAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1 / aspectRatio)
         ])
+    }
 
-        let maxDimension = max(imageView.bounds.width, imageView.bounds.height)
-//        scrollView.contentSize = CGSize(width: maxDimension, height: maxDimension)
-        scrollView.contentSize = imageView.bounds.size
+    func setScrollViewConstraints() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.minimumZoomScale = 1.0
+        scrollView.maximumZoomScale = 3.0
 
-//        print("wid: \(imageView.bounds.size.width)")
+        scrollView.backgroundColor = .red
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+
+        view.addSubview(scrollView)
+
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            scrollView.heightAnchor.constraint(equalToConstant: (view.bounds.size.width - 40) * 4 / 3),
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+        ])
+
         scrollView.delegate = self
+    }
 
+    func setHStackConstraints() {
         view.addSubview(hStack)
 
         xButton.setImage(UIImage(systemName: "xmark"), for: .normal)
@@ -116,8 +134,6 @@ class Temp2ViewController: UIViewController {
             hStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             hStack.heightAnchor.constraint(equalToConstant: 100)
         ])
-
-
     }
 
     @objc func dismissImageResizer() {
@@ -126,11 +142,15 @@ class Temp2ViewController: UIViewController {
     }
 
     @objc func confirm() {
+        vm.modifiedImagePublisher.send(vm.selectedImage)
+        self.dismiss(animated: true) { [weak self] in
+            self?.vm.picker.dismiss(animated: true, completion: nil)
+        }
         print("confirm")
     }
 }
 
-extension Temp2ViewController: UIScrollViewDelegate {
+extension ImageResizeViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return self.imageView
     }

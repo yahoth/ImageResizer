@@ -1,15 +1,15 @@
 //
-//  ViewController.swift
+//  TempVC.swift
 //  ImageResizer
 //
-//  Created by TAEHYOUNG KIM on 2023/10/03.
+//  Created by TAEHYOUNG KIM on 10/6/23.
 //
 
 import UIKit
 import Combine
 
-class ViewController: UIViewController {
-    let imagePicker = ImagePicker()
+class TempVC: UIViewController {
+    var subscriptions = Set<AnyCancellable>()
 
     var imageView: UIImageView = {
         var imageView = UIImageView()
@@ -18,19 +18,17 @@ class ViewController: UIViewController {
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
-//
-    var subscriptions = Set<AnyCancellable>()
+
+    let imagePicker = ImagePicker()
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-
-        view.addSubview(imageView)
-        bind()
         setNavigationBar()
         setConstraint()
+        bind()
     }
 
     func setConstraint() {
+        view.addSubview(imageView)
         imageView.center = view.center
 
         NSLayoutConstraint.activate([
@@ -57,16 +55,17 @@ class ViewController: UIViewController {
     }
 
     func bind() {
-        imagePicker.selectedImagePublisher
+        imagePicker.modifiedImagePublisher
             .receive(on: DispatchQueue.main)
             .sink { image in
-//                self.imageView.image = image
-//                let vc = Temp2ViewController()
+                self.imageView.image = image
+//                let vc = ImageResizeViewController()
 //                vc.selectedImage = image
 //                vc.modalPresentationStyle = .fullScreen
 //                self.present(vc, animated: true)
             }.store(in: &subscriptions)
     }
 
-}
 
+
+}
