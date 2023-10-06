@@ -27,7 +27,6 @@ class ImagePicker: NSObject, PHPickerViewControllerDelegate {
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         let itemProvider = results.first?.itemProvider
-
         if let itemProvider, itemProvider.canLoadObject(ofClass: UIImage.self) {
             itemProvider.loadObject(ofClass: UIImage.self) { image, error in
                 DispatchQueue.main.async {
@@ -44,30 +43,4 @@ class ImagePicker: NSObject, PHPickerViewControllerDelegate {
             picker.dismiss(animated: true)
         }
     }
-
-//    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-//        if let itemProvider = results.first?.itemProvider {
-//            if itemProvider.canLoadObject(ofClass: UIImage.self) {
-//                itemProvider.loadObject(ofClass: UIImage.self) { image, error in
-//                    if let error = error {
-//                        // Error handling
-//                        print("Error loading image: \(error)")
-//                    } else if let image = image as? UIImage {
-//                        DispatchQueue.main.async {
-//                            // Image loading success
-//                            // ... Your code ...x
-//                        }
-//                    } else {
-//                        // The loaded object is not an image.
-//                        print("The loaded object is not an image.")
-//                    }
-//                }
-//            } else {
-//                print("Can't load the selected object as a UIImage.")
-//            }
-//        } else {
-//            picker.dismiss(animated: true)
-//        }
-//
-//    }
 }

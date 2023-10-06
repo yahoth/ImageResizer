@@ -8,6 +8,7 @@
 import UIKit
 import Combine
 
+
 class ViewController: UIViewController {
     let vm: ViewModel = ViewModel()
 
@@ -18,7 +19,7 @@ class ViewController: UIViewController {
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
-//
+
     var subscriptions = Set<AnyCancellable>()
 
     override func viewDidLoad() {
@@ -30,9 +31,9 @@ class ViewController: UIViewController {
         setConstraint()
     }
 
+
     func setConstraint() {
-        imageView.center = view.center
-        imageView.image = UIImage(named: "addImage")
+        view.addSubview(imageView)
 
         NSLayoutConstraint.activate([
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -71,6 +72,5 @@ class ViewController: UIViewController {
                 self.imageView.image = image
             }.store(in: &subscriptions)
     }
-
 }
 

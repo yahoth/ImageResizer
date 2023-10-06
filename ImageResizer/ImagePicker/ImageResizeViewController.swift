@@ -171,6 +171,9 @@ class ImageResizeViewController: UIViewController {
     func setHStackConstraints() {
         view.addSubview(hStack)
 
+        cropLabel.text = "Crop"
+        cropLabel.textColor = .label
+
         hStack.insertArrangedSubview(cropLabel, at: 1)
 
         NSLayoutConstraint.activate([

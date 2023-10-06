@@ -10,6 +10,7 @@ import Combine
 
 class TempVC: UIViewController {
     var subscriptions = Set<AnyCancellable>()
+    let vm: ViewModel = ViewModel()
 
     var imageView: UIImageView = {
         var imageView = UIImageView()
@@ -22,7 +23,8 @@ class TempVC: UIViewController {
     let imagePicker = ImagePicker()
 
     override func viewDidLoad() {
-        
+        super.viewDidLoad()
+        view.addSubview(imageView)
         setNavigationBar()
         setConstraint()
         bind()
@@ -43,7 +45,7 @@ class TempVC: UIViewController {
     func setNavigationBar() {
         let modes = [
             UIAction(title: "select image") { _ in
-                self.imagePicker.presentPhotoPicker(from: self)
+                self.vm.imagePicker.presentPhotoPicker(from: self)
             },
             UIAction(title: "take a picture") { _ in
                 print("b")
@@ -52,7 +54,14 @@ class TempVC: UIViewController {
         let image = UIImage(systemName: "photo")
         let menu = UIMenu(options: .displayInline, children: modes)
         let button = UIBarButtonItem(image: image, menu: menu)
-        self.navigationItem.rightBarButtonItem = button
+//        let present = UIBarButtonItem(title: "present", style: .plain, target: self, action: #selector(presentTempVC))
+        self.navigationItem.rightBarButtonItems = [button]
+    }
+
+    @objc func presentTempVC() {
+        let vc = TempVC()
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
     }
 
     func bind() {
@@ -60,13 +69,6 @@ class TempVC: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { image in
                 self.imageView.image = image
-//                let vc = ImageResizeViewController()
-//                vc.selectedImage = image
-//                vc.modalPresentationStyle = .fullScreen
-//                self.present(vc, animated: true)
             }.store(in: &subscriptions)
     }
-
-
-
 }
